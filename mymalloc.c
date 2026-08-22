@@ -11,7 +11,7 @@ void *my_malloc(unsigned int size){
         exit(1);
     }
     if (head == NULL){
-        head = sbrk(8);
+        head = sbrk(sizeof(struct Node));
         head->next = NULL;
     }
     
@@ -24,7 +24,7 @@ void *my_malloc(unsigned int size){
         if (curr->next->block_size >= block_size){
             ptr = (long *)curr->next;
             if (curr->next->block_size > block_size){
-                struct Node *tmp_node = curr->next + block_size * 8;
+                struct Node *tmp_node = (struct Node *)((char*)curr->next + block_size * 8); //포인터 연산은 포인터 타입에 따라 이동하는 바이트 수가 바뀌기에 char*로 캐스팅한 이후에 연산하기
                 tmp_node->next = curr->next->next;
                 tmp_node->block_size = curr->next->block_size - block_size;
                 curr->next = tmp_node;
@@ -33,19 +33,21 @@ void *my_malloc(unsigned int size){
                 curr->next = curr->next->next;
             }
             flag = 1;
+            break;
         }
+        curr = curr->next;
     }
     if (!flag){
         ptr = sbrk(block_size * 8);
     }
     *ptr = block_size;
-    ptr = (void *)ptr + 8;
-    return ptr;
+    ptr = (char *)ptr + 8;
+    return (void *)ptr;
 }
 
 void my_free(void *ptr){
     if (head == NULL){
-        head = sbrk(8);
+        head = sbrk(sizeof(struct Node));
         head->next = NULL;
     }
     struct Node *curr = head;
