@@ -67,8 +67,7 @@ void my_free(void *ptr){
         head->next = NULL;
     }
     ptr = (char *)ptr - 8;
-    long block_size = *(long *)ptr; /* 원래 long* 타입이었던 block_size를 long 타입으로 고친 이유: `curr->next = NULL`코드에서 curr->next가 가리키는 주소가 
-    현재 코드의 (long *)ptr 주소와 같으므로 block_size를 역참조하기 전에 값이 NULL이 되어버림 */
+    long block_size = *(long *)ptr;
 
     //curr을 연결리스트 내에서 주소상 사이 위치에. & 동시에 리스트 합병.
     struct Node *curr = head;
