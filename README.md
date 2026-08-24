@@ -1,4 +1,4 @@
-#Custom Mini Malloc
+# Custom Mini Malloc
 
 C 표준 라이브러리의 `malloc()`, `free()` 함수를 직접 구현한 프로젝트입니다.
 
