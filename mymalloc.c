@@ -57,14 +57,17 @@ void *my_malloc(unsigned int size){
     }
 
     *ptr = block_size;
-    ptr = (char *)ptr + 8;
-    return (void *)ptr;
+    ptr = (void *)((char *)ptr + 8);
+    return ptr;
 }
 
 void my_free(void *ptr){
     if (head == NULL){
         head = sbrk(sizeof(struct Node));
         head->next = NULL;
+    }
+    if (ptr == NULL){
+        return;
     }
     ptr = (char *)ptr - 8;
     long block_size = *(long *)ptr;
@@ -73,6 +76,11 @@ void my_free(void *ptr){
     struct Node *curr = head;
     while (curr->next != NULL){
         if ((uintptr_t)ptr < (uintptr_t)curr->next){
+            if (curr != head){
+                if ((uintptr_t)ptr == (uintptr_t)curr || (uintptr_t)ptr < (uintptr_t)curr + curr->block_size * 8){
+                    return;
+                }
+            }
             if ((uintptr_t)curr + curr->block_size * 8 == (uintptr_t)ptr){
                 curr->block_size += block_size;
                 if ((uintptr_t)ptr + block_size * 8 == (uintptr_t)curr->next){
@@ -98,9 +106,33 @@ void my_free(void *ptr){
         curr = curr->next;
     }
     if (curr->next == NULL){
+        if (curr != head){
+            if ((uintptr_t)ptr == (uintptr_t)curr || (uintptr_t)ptr < (uintptr_t)curr + curr->block_size * 8){
+                return;
+            }
+        }
+        if ((uintptr_t)curr + curr->block_size * 8 == (uintptr_t)ptr){
+            curr->block_size += block_size;
+            return;
+        }
         curr->next = (struct Node *)ptr;
         curr->next->next = NULL;
         curr->next->block_size = block_size;
+        return;    
+    }
+    
+}
+
+void print_free_list(){
+    struct Node *curr = head;
+    int index = 0;
+    while(curr->next != NULL){
+        curr = curr->next;
+        printf("[%d] 주소: %p, 해제한 블럭 크기: %ld\n", index, (void *)curr, curr->block_size);
+        ++index;
+    }
+    if (curr == head){
+        printf("아직 해제된 메모리가 없습니다.\n");
     }
     return;
 }
