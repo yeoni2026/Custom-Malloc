@@ -123,7 +123,7 @@ void my_free(void *ptr){
     
 }
 
-void print_free_list(){
+void print_free_list(void){
     struct Node *curr = head;
     int index = 0;
     while(curr->next != NULL){
